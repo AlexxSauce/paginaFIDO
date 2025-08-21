@@ -1,3 +1,23 @@
+/**
+ * @fileoverview Componente de registro de usuarios del Sistema FIDO
+ * 
+ * Este componente permite a los administradores registrar nuevos usuarios
+ * en el sistema. Utiliza una instancia secundaria de Firebase para evitar
+ * que se cierre la sesión del administrador durante el proceso de registro.
+ * 
+ * Características principales:
+ * - Verificación de permisos de administrador
+ * - Registro de usuarios sin afectar la sesión activa
+ * - Asignación de roles (admin/consulta)
+ * - Validaciones de formulario
+ * - Animaciones con Framer Motion
+ * - Manejo de errores y estados de carga
+ * 
+ * @author Sistema FIDO
+ * @version 1.0.0
+ * @since 2025
+ */
+
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { initializeApp, getApps } from 'firebase/app';
@@ -6,7 +26,12 @@ import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-// Usa config de tu firebase.js
+/**
+ * Configuración de Firebase para instancia secundaria
+ * Se usa para crear usuarios sin afectar la sesión principal del administrador
+ * 
+ * @note Esta configuración debería moverse a variables de entorno en producción
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyCVBkVzrSEi2Izoa_M8Xh31aUgBH1dMNNU",
   authDomain: "proycitaspau.firebaseapp.com",
@@ -17,7 +42,19 @@ const firebaseConfig = {
   measurementId: "G-CV891PY8TK"
 };
 
+/**
+ * Componente de registro de usuarios
+ * 
+ * Solo accesible por administradores. Permite crear nuevos usuarios
+ * con diferentes roles y almacenar su información en Firestore.
+ * 
+ * @component
+ * @returns {JSX.Element} Interfaz de registro de usuarios
+ */
 export default function Register() {
+  /**
+   * Estados del componente para manejar el formulario y UI
+   */
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rol, setRol] = useState('consulta');
@@ -27,9 +64,18 @@ export default function Register() {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
 
+  /**
+   * Verifica si el usuario actual tiene permisos de administrador
+   * Solo los administradores pueden acceder a esta página
+   */
   useEffect(() => {
     let unsubscribe;
     
+    /**
+     * Función interna para verificar el rol de administrador
+     * @async
+     * @function verificarRolAdmin
+     */
     const verificarRolAdmin = async () => {
       try {
         // Esperar a que Firebase Auth se inicialice
@@ -42,6 +88,7 @@ export default function Register() {
           }
 
           try {
+            // Obtener documento del usuario desde Firestore
             const docRef = doc(db, 'usuarios', user.uid);
             const docSnap = await getDoc(docRef);
             
@@ -52,6 +99,7 @@ export default function Register() {
               return;
             }
 
+            // Verificar si el usuario tiene rol de administrador
             const userRol = docSnap.data()?.rol?.toLowerCase();
             console.log('Rol del usuario:', userRol);
 
@@ -86,11 +134,22 @@ export default function Register() {
     };
   }, [navigate]);
 
+  /**
+   * Maneja el registro de un nuevo usuario
+   * 
+   * Utiliza una instancia secundaria de Firebase Auth para crear el usuario
+   * sin afectar la sesión del administrador que está logueado.
+   * 
+   * @async
+   * @function handleRegister
+   * @param {Event} e - Evento del formulario
+   */
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     
+    // Validaciones básicas del formulario
     if (!email || !password) {
       setError('Por favor completa todos los campos');
       return;
@@ -117,7 +176,7 @@ export default function Register() {
       // Crea usuario en Auth secundario (NO cambia sesión principal)
       const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
 
-      // Guarda documento en Firestore
+      // Guarda documento del usuario en Firestore
       const userDocRef = doc(db, 'usuarios', userCredential.user.uid);
       await setDoc(userDocRef, {
         email: email,
@@ -129,12 +188,14 @@ export default function Register() {
       await signOutSecondary(secondaryAuth); 
 
       setSuccess(`✅ Usuario registrado exitosamente con rol: ${rol}`);
+      // Limpia el formulario después del registro exitoso
       setEmail('');
       setPassword('');
       setRol('consulta');
 
     } catch (error) {
       console.error(error);
+      // Manejo específico de errores de Firebase Auth
       if (error.code === 'auth/email-already-in-use') {
         setError('Este correo electrónico ya está registrado');
       } else if (error.code === 'auth/weak-password') {
@@ -149,12 +210,20 @@ export default function Register() {
     }
   };
 
+  /**
+   * Maneja el cierre de sesión del administrador
+   * @async
+   * @function handleLogout
+   */
   const handleLogout = async () => {
     await auth.signOut();
     navigate('/login');
   };
 
-  // Pantalla de carga mientras se verifica la autenticación
+  /**
+   * Pantalla de carga mientras se verifica la autenticación
+   * Se muestra mientras el sistema verifica los permisos del usuario
+   */
   if (authLoading) {
     return (
       <div className="min-h-screen bg-purple-100 flex items-center justify-center">
@@ -166,6 +235,12 @@ export default function Register() {
     );
   }
 
+  /**
+   * Interfaz principal del componente
+   * 
+   * Renderiza el formulario de registro con animaciones de Framer Motion
+   * y maneja la visualización de mensajes de error y éxito.
+   */
   return (
     <motion.div 
       className="min-h-screen bg-purple-100 flex flex-col font-sans"
@@ -173,6 +248,7 @@ export default function Register() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Header con título y botón de logout */}
       <motion.header 
         className="bg-purple-200 p-4 shadow-md mb-8"
         initial={{ y: -50, opacity: 0 }}
@@ -195,6 +271,7 @@ export default function Register() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
+            {/* Icono de logout */}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-red-600">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 12H9m0 0l3-3m-3 3l3 3" />
@@ -203,7 +280,9 @@ export default function Register() {
         </div>
       </motion.header>
 
+      {/* Contenido principal con formulario de registro */}
       <main className="flex-1 container mx-auto p-4 flex items-center justify-center">
+        {/* Tarjeta del formulario con animaciones */}
         <motion.section 
           className="bg-gray-100 rounded-3xl shadow-lg overflow-hidden border-4 border-black max-w-md w-full"
           initial={{ scale: 0.9, opacity: 0 }}
@@ -220,6 +299,7 @@ export default function Register() {
               Nuevo Usuario
             </motion.h2>
 
+            {/* Mensaje de error */}
             {error && (
               <motion.div 
                 className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
@@ -231,6 +311,7 @@ export default function Register() {
               </motion.div>
             )}
 
+            {/* Mensaje de éxito */}
             {success && (
               <motion.div 
                 className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
@@ -242,7 +323,9 @@ export default function Register() {
               </motion.div>
             )}
 
+            {/* Formulario de registro */}
             <form onSubmit={handleRegister} className="space-y-4">
+              {/* Campo de correo electrónico */}
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -262,6 +345,7 @@ export default function Register() {
                 />
               </motion.div>
               
+              {/* Campo de contraseña */}
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -281,6 +365,7 @@ export default function Register() {
                 />
               </motion.div>
               
+              {/* Selector de rol de usuario */}
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -300,6 +385,7 @@ export default function Register() {
                 </select>
               </motion.div>
               
+              {/* Botón de registro con estado de carga */}
               <motion.button 
                 type="submit"
                 disabled={loading}
@@ -321,6 +407,7 @@ export default function Register() {
               </motion.button>
             </form>
             
+            {/* Botón para volver al dashboard */}
             <motion.div 
               className="mt-6 text-center"
               initial={{ y: 20, opacity: 0 }}
@@ -332,6 +419,7 @@ export default function Register() {
                 className="inline-block p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:shadow-outline transition-colors duration-200"
                 title="Volver al Dashboard"
               >
+                {/* Icono de flecha hacia atrás */}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-700">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>

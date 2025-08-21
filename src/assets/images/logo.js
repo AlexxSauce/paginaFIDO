@@ -1,7 +1,45 @@
-// Logo de la empresa en base64
+/**
+ * @fileoverview Logo y recursos gráficos de la aplicación FIDO
+ * 
+ * Este archivo contiene el logo de la aplicación en diferentes formatos:
+ * - Base64 para uso directo en HTML
+ * - Componente React SVG para renderizado dinámico
+ * - Función para generar datos de imagen para canvas/PDF
+ * 
+ * El diseño del logo representa una mascota estilizada con colores
+ * corporativos y elementos gráficos que reflejan la identidad de FIDO.
+ * 
+ * @author Sistema FIDO
+ * @version 1.0.0
+ * @since 2025
+ */
+
+/**
+ * Logo de la empresa en formato base64
+ * Útil para uso directo en elementos <img> o CSS
+ * 
+ * @type {string}
+ * @constant
+ */
 export const logoBase64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMDAgMTAwSDQwMFY0MDBIMTAwVjEwMFoiIGZpbGw9IiNGRjY1MDAiLz4KPHBhdGggZD0iTTE1MCAyMDBIMzUwVjMwMEgxNTBWMjAwWiIgZmlsbD0iI0ZGRkZGRiIvPgo8L3N2Zz4K";
 
-// Logo como componente React SVG
+/**
+ * Componente React del logo como SVG
+ * 
+ * Renderiza el logo de FIDO como un SVG escalable con la representación
+ * estilizada de una mascota. Incluye elementos como orejas, cuerpo principal,
+ * mancha blanca en el pecho y cola.
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {number} [props.width=40] - Ancho del logo en píxeles
+ * @param {number} [props.height=40] - Alto del logo en píxeles
+ * @param {string} [props.className=""] - Clases CSS adicionales
+ * @returns {JSX.Element} Elemento SVG del logo
+ * 
+ * @example
+ * <LogoSVG width={60} height={60} className="mx-auto" />
+ */
 export const LogoSVG = ({ width = 40, height = 40, className = "" }) => (
   <svg 
     width={width} 
@@ -70,9 +108,25 @@ export const LogoSVG = ({ width = 40, height = 40, className = "" }) => (
   </svg>
 );
 
-// Función para obtener el logo como imagen para canvas/PDF
+/**
+ * Genera datos de imagen del logo para uso en canvas o generación de PDF
+ * 
+ * Convierte el logo SVG a un DataURL en formato PNG que puede ser utilizado
+ * en contextos donde se requiere una imagen bitmap, como canvas HTML5 o
+ * bibliotecas de generación de PDF.
+ * 
+ * @async
+ * @function getLogoImageData
+ * @returns {Promise<string>} DataURL de la imagen en formato PNG
+ * 
+ * @example
+ * const logoData = await getLogoImageData();
+ * // Usar logoData en canvas: ctx.drawImage(img, 0, 0);
+ * // Usar logoData en PDF: doc.addImage(logoData, 'PNG', x, y, width, height);
+ */
 export const getLogoImageData = () => {
   return new Promise((resolve) => {
+    // SVG del logo con dimensiones fijas para canvas
     const svg = `
       <svg width="120" height="120" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <path d="M50 150 
@@ -122,6 +176,7 @@ export const getLogoImageData = () => {
       </svg>
     `;
     
+    // Crear canvas para convertir SVG a imagen
     const canvas = document.createElement('canvas');
     canvas.width = 120;
     canvas.height = 120;
@@ -133,6 +188,7 @@ export const getLogoImageData = () => {
       resolve(canvas.toDataURL('image/png'));
     };
     
+    // Convertir SVG a blob y crear URL
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     img.src = url;

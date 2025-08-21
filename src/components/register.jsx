@@ -1,3 +1,20 @@
+/**
+ * @fileoverview Componente de registro de usuarios (versión alternativa)
+ * 
+ * NOTA: Este archivo parece ser una versión alternativa o copia de seguridad
+ * del componente UserRegister.jsx. Se recomienda revisar si es necesario
+ * mantener ambas versiones o consolidar en una sola.
+ * 
+ * Este componente permite el registro de nuevos usuarios utilizando
+ * una instancia secundaria de Firebase para evitar cerrar la sesión
+ * del administrador activo.
+ * 
+ * @deprecated Considerar usar UserRegister.jsx como versión principal
+ * @author Sistema FIDO
+ * @version 1.0.0
+ * @since 2025
+ */
+
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { initializeApp, getApps } from 'firebase/app';
@@ -6,7 +23,11 @@ import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-// Configuración secundaria para registro de usuarios (debe ser la misma que firebase.js)
+/**
+ * Configuración secundaria para registro de usuarios
+ * @note Esta configuración debe coincidir con firebase.js
+ * @warning En producción, mover a variables de entorno
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyDNMdSNB-Ipa5yZC2MBiMQMhJRJXD5-tco",
   authDomain: "fido-37f41.firebaseapp.com",
@@ -17,6 +38,12 @@ const firebaseConfig = {
   measurementId: "G-5F8GXR8404"
 };
 
+/**
+ * Componente de registro de usuarios (versión alternativa)
+ * 
+ * @component
+ * @returns {JSX.Element} Interfaz de registro de usuarios
+ */
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
