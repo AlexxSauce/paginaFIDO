@@ -30,16 +30,17 @@ import { motion } from 'framer-motion';
  * Configuración de Firebase para instancia secundaria
  * Se usa para crear usuarios sin afectar la sesión principal del administrador
  * 
- * @note Esta configuración debería moverse a variables de entorno en producción
+ * @note Esta configuración debe coincidir exactamente con firebase.js
+ * @warning En producción, mover a variables de entorno
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyCVBkVzrSEi2Izoa_M8Xh31aUgBH1dMNNU",
-  authDomain: "proycitaspau.firebaseapp.com",
-  projectId: "proycitaspau",
-  storageBucket: "proycitaspau.firebasestorage.app",
-  messagingSenderId: "851042831377",
-  appId: "1:851042831377:web:f3996a190fee636278b5b0",
-  measurementId: "G-CV891PY8TK"
+  apiKey: "AIzaSyDNMdSNB-Ipa5yZC2MBiMQMhJRJXD5-tco",
+  authDomain: "fido-37f41.firebaseapp.com",
+  projectId: "fido-37f41",
+  storageBucket: "fido-37f41.firebasestorage.app",
+  messagingSenderId: "237495518878",
+  appId: "1:237495518878:web:7c6b758e4aa3e1f6cf1d8f",
+  measurementId: "G-5F8GXR8404"
 };
 
 /**
@@ -194,16 +195,23 @@ export default function Register() {
       setRol('consulta');
 
     } catch (error) {
-      console.error(error);
-      // Manejo específico de errores de Firebase Auth
+      console.error('Error completo:', error);
+      console.error('Código de error:', error.code);
+      console.error('Mensaje:', error.message);
+      
+      // Manejo específico de errores de Firebase
       if (error.code === 'auth/email-already-in-use') {
         setError('Este correo electrónico ya está registrado');
       } else if (error.code === 'auth/weak-password') {
         setError('La contraseña es muy débil');
       } else if (error.code === 'auth/invalid-email') {
         setError('Correo electrónico inválido');
+      } else if (error.code === 'permission-denied' || error.message.includes('permissions')) {
+        setError('⚠️ Error de permisos: Las reglas de Firestore necesitan ser actualizadas. Contacta al administrador del sistema.');
+      } else if (error.code === 'unavailable') {
+        setError('🌐 Servicio no disponible. Verifica tu conexión a internet.');
       } else {
-        setError('Error al registrar usuario: ' + error.message);
+        setError(`❌ Error al registrar usuario: ${error.message}`);
       }
     } finally {
       setLoading(false);
