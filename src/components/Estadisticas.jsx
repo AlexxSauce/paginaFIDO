@@ -682,17 +682,39 @@ export default function Estadisticas() {
               <p className="text-sm text-gray-600">Sistema FIDO - Registros de Comida</p>
             </div>
           </motion.div>
-          <motion.button
-            onClick={() => navigate('/dashboard')}
-            className="inline-block p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:shadow-outline"
-            title="Volver al Dashboard"
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            whileTap={{ scale: 0.95 }}
+
+          {/* Menú de navegación */}
+          <motion.div 
+            className="flex items-center gap-2"
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-700">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </motion.button>
+            <motion.button
+              onClick={() => navigate('/registro-alimento')}
+              className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors duration-200"
+              title="Ir a Registrar Alimento"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span className="hidden sm:inline">Registrar Alimento</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={() => navigate('/dashboard')}
+              className="inline-block p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:shadow-outline"
+              title="Volver al Dashboard"
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </motion.button>
+          </motion.div>
         </div>
       </motion.header>
 
